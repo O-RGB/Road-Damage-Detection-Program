@@ -27,7 +27,7 @@
 # นำจุดทั้งหมดสร้างเป็นกราฟความร้อน (ความเสียหาย)
 ![img](https://i.imgur.com/lnLOdee.png)
 
-
+# นำข้อมูลทั้งหมดมารวมกัน
 ![img](https://media0.giphy.com/media/p9jDAX9JruRnaYmcLx/giphy.gif?cid=790b761187dc30cbf0d00a37305b351c75943164c9a530ce&rid=giphy.gif&ct=g)
 
 
