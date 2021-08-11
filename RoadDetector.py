@@ -1,9 +1,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import  QFileDialog
+from PyQt5.QtWidgets import  QFileDialog, QLabel
 
 import cv2,glob
 
 from natsort.natsort import natsorted
+import numpy as np
 import heatmap,xanvas
 import TEMP_DIRS_POHOTO as READFILE
 import PredictFRCNN
@@ -190,20 +191,22 @@ class Ui_MainWindow(object):
             self.label_17.setObjectName("label_17")
             self.line_4.raise_()
             self.label_13.raise_()
-            # self.lineEdit_4.raise_()
+            self.lineEdit_4.raise_()
             self.label_11.raise_()
-            # self.lineEdit_3.raise_()
+            self.lineEdit_3.raise_()
             self.label_15.raise_()
             self.label_16.raise_()
-            # self.lineEdit_6.raise_()
+            self.lineEdit_6.raise_()
             self.label_12.raise_()
-            # self.lineEdit_5.raise_()
+            self.lineEdit_5.raise_()
             self.line_5.raise_()
             self.label_17.raise_()
             MainWindow.setCentralWidget(self.centralwidget)
 
             self.canvas = xanvas.Canvas(self.label_5)
             self.canvas_1 = heatmap.heatmap(self.label_6)
+
+            
 
             self.retranslateUi(MainWindow)
             QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -239,10 +242,10 @@ class Ui_MainWindow(object):
         self.pushButton_3.clicked.connect(self.fuck)
         self.pushButton_4.clicked.connect(self.DIR_FILE_PATH_GPS)
 
+
  
     def LOADING(self,intData):
         self.progressBar.setProperty("value",intData)
-
 
     def READ_FILE_TEMP_TEXT(self):
         self.fileGPS  = [] 
@@ -257,17 +260,35 @@ class Ui_MainWindow(object):
         self.FileTextIndex = self.FileTextIndex + 1 
 
     def GPS_DISTANCE(self,distance,km_h):
-        self.distanceAll = float(self.distanceAll) + float(distance)  
-        self.lineEdit_6.setText("{:.2f}".format(self.distanceAll))
-        self.lineEdit_5.setText("{:.2f}".format(float(km_h)))
-        self.lineEdit_6.show()
-        self.lineEdit_5.show()
+        self.distanceAll = float(self.distanceAll) + float(distance) 
+        self.create_word("{:.2f}".format(self.distanceAll),self.lineEdit_6)
+        self.create_word("{:.2f}".format(float(km_h)),self.lineEdit_5)
 
     def GPS_NEXT_LIST(self,lat,long):
-        self.lineEdit_4.setText(lat)
-        self.lineEdit_3.setText(long)
-        self.lineEdit_4.show()
-        self.lineEdit_3.show()
+        self.create_word(lat,self.lineEdit_4)
+        self.create_word(long,self.lineEdit_3)
+
+
+    def create_word(self,str,label):
+        blank_image = np.zeros((30,230,3), np.uint8)
+        blank_image.fill(255) 
+        cv2.putText(blank_image, str, (20,20), cv2.FONT_HERSHEY_SIMPLEX , 0.5, (0, 0, 0))
+        self.setImg_label(blank_image,label)
+
+
+    def setImg_label(self,img,label):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        height, width, channels = img.shape
+        bytesPerLine = channels * width
+        qImg = QtGui.QImage(img.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
+        pixmap01 = QtGui.QPixmap.fromImage(qImg)
+        pixmap_image = QtGui.QPixmap(pixmap01)
+        label.setPixmap(pixmap_image)
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setScaledContents(True)
+        label.setMinimumSize(1,1)
+        label.show()
+
   
     def DIR_FILE_PATH_GPS(self):
         resopnse = QFileDialog.getOpenFileName()
@@ -275,16 +296,16 @@ class Ui_MainWindow(object):
         self.lineEdit_4.setText(resopnse[0])
         self.lineEdit_3.setText(resopnse[0])
         
-        
-
     def DIR_FILE_PATH(self):
         resopnse = QFileDialog.getOpenFileName()
         self._file_path = resopnse[0]
         self.SET_IMG_OR("first")
+        
 
     def DIR_FILE_SAVE(self):
         thr1 = READFILE.Counter(self._file_path,30,self)
         thr1.start()
+        self.RuningFalse(False)
 
     def fuck(self):
         self.SET_IMG_OR("getfile")
@@ -298,24 +319,11 @@ class Ui_MainWindow(object):
         self.pushButton_3.setEnabled(bool)
         self.pushButton_4.setEnabled(bool)
         self.comboBox.setEnabled(bool)
-
-        
         
     def SET_IMG_DETECT(self,img):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        height, width, channels = img.shape
-        bytesPerLine = channels * width
-        qImg = QtGui.QImage(img.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
-        pixmap01 = QtGui.QPixmap.fromImage(qImg)
-        pixmap_image = QtGui.QPixmap(pixmap01)
-        self.label_7.setPixmap(pixmap_image)
-        self.label_7.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_7.setScaledContents(True)
-        self.label_7.setMinimumSize(1,1)
-        self.label_7.show()
+        self.setImg_label(img,self.label_7)
 
     def SET_IMG_OR(self,mode="READALL"):
-
         if mode == "first":
             cap = cv2.VideoCapture(self._file_path,0) 
             cap.set(1,0)
@@ -327,21 +335,8 @@ class Ui_MainWindow(object):
         else:
             self.ImgShowNow = self.ImgShowNow + 1
             img = cv2.imread(self.FileImg[self.ImgShowNow-1])
-
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        height, width, channels = img.shape
-        bytesPerLine = channels * width
-        qImg = QtGui.QImage(img.data, width, height, bytesPerLine, QtGui.QImage.Format_RGB888)
-        pixmap01 = QtGui.QPixmap.fromImage(qImg)
-        pixmap_image = QtGui.QPixmap(pixmap01)
-        self.label.setPixmap(pixmap_image)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setScaledContents(True)
-        self.label.setMinimumSize(1,1)
-        self.label.show()
-
-        
-
+            self.NEXT_FILE_TEMP()
+        self.setImg_label(img,self.label)
 
 
 if __name__ == "__main__":

@@ -141,12 +141,21 @@
 # for i in array:
 #     print(i)
 
-fileGPS  = [] 
-with open('temp.txt') as f:
-    lines = [line.rstrip() for line in f]
-for i in lines:
-    fileGPS.append(i.split(","))
+# fileGPS  = [] 
+# with open('temp.txt') as f:
+#     lines = [line.rstrip() for line in f]
+# for i in lines:
+#     fileGPS.append(i.split(","))
 
-for i in range(len(fileGPS)):
-    print(fileGPS[i])
+# for i in range(len(fileGPS)):
+#     print(fileGPS[i])
     
+
+import cv2
+import numpy as np
+blank_image = np.zeros((20,50,3), np.uint8)
+blank_image.fill(255) # or img[:] = 255
+
+
+cv2.imshow("ff",blank_image)
+# cv2.putText(image,"Hello World!!!", (x,y), 0, 2, 255)

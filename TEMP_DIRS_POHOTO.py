@@ -2,6 +2,8 @@ import re
 from threading import Thread 
 import os
 import cv2
+from math import radians, cos, sin, asin, sqrt
+import numpy as np
 
 class Counter(Thread):
 
@@ -11,69 +13,54 @@ class Counter(Thread):
         self.GUI = GUI
         self.fps = fps
         self.fileGPS = []
-        with open('C:/Users/okoza/Desktop/gps.txt') as f:
-            lines = [line.rstrip() for line in f]
-        for i in lines:
-            self.fileGPS.append(i.split(", "))
+
 
     def run(self):
-        dirname = "temp"
-        dirname2 = "tempVideo"
-        dirname3 = "detectOut"
-        try:
-            os.makedirs(dirname)
-            os.makedirs(dirname2)
-            os.makedirs(dirname3) 
-        except OSError:
-            if os.path.exists(dirname) or os.path.exists(dirname2)  or os.path.exists(dirname3):
-                pass
-            else:
-                raise
         
-        i = 0
-        j = 0
-        cap = cv2.VideoCapture(self.DIR,0) 
-        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        for_lool = int(frame_count/self.fps)
-        WriteFileTemp(0,self.fileGPS[0][0],self.fileGPS[0][1],0)
-        km_h = 0
-        # self.GUI.LOADING(0)
-        # self.GUI.RuningFalse(False)
+        NewFolder()
+        GPS = ReadFileGpsPath('C:/Users/okoza/Desktop/gps.txt')
+
+        InterLoop = 4
+        sumall = int(self.fps/(InterLoop+1))
+        IndexFrame, j, km_h, count  = 0, 0, 0, 0 
+        VideoCapture = cv2.VideoCapture(self.DIR,0) 
+        frame_count = int(VideoCapture.get(cv2.CAP_PROP_FRAME_COUNT)) # for_lool = int(frame_count/self.fps) # self.GUI.LOADING(0) # self.GUI.RuningFalse(False)
+        
         while True:
-            if (j != 0) and (j < len(self.fileGPS)-1):
-                lat1,long1,lat2,long2 = self.fileGPS[j-1][0],self.fileGPS[j-1][1],self.fileGPS[j][0],self.fileGPS[j][1]
+            if (j != 0) and (j <= len(GPS)):
+                lat1,long1,lat2,long2 = GPS[j-1][0],GPS[j-1][1],GPS[j][0],GPS[j][1]
                 km_h = haversine(lat1,long1,lat2,long2)
-                if km_h*3600 > 35:
-                    newArrayLatLong = interpData(lat1,long1,lat2,long2)
-                    km_hx = haversine(lat1,long1,newArrayLatLong[0][0],newArrayLatLong[0][1])
-                    WriteFileTemp(j,newArrayLatLong[0][0],newArrayLatLong[0][1],km_hx,"temp/0{}.0.jpg")
+                InterGPS = interpData(lat1,long1,lat2,long2,InterLoop)
+                km_hx = (km_h/(InterLoop+1))
+                km_h = (km_h-(km_hx*InterLoop))
 
-                    cap.set(1,i - 15); 
-                    # print("---",i- 15)
-                    _, img = cap.read()
-                    cv2.imwrite("temp/0{}.0.jpg".format(j),img)
+                
+                for i in range(InterLoop):
+                    IndexInter = (IndexFrame-self.fps)+(sumall*(i+1))
+                    WriteFileTemp(count,j, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,i+1,"temp/0{}.{}.jpg")
+                    capVideo(VideoCapture,IndexInter,j,i,"temp/0{}.{}.jpg")
+                    count = count + 1
 
-                WriteFileTemp(j,self.fileGPS[j][0],self.fileGPS[j][1],km_h)
+            WriteFileTemp(count,j,GPS[j][0],GPS[j][1],km_h)
+            capVideo(VideoCapture,IndexFrame,j)
+            IndexFrame = IndexFrame + self.fps
+            j = j + 1 # self.GUI.LOADING(int(j*100/for_lool))
+            count = count + 1
+            if IndexFrame+self.fps > frame_count or j >= len(GPS):
+                break 
+        self.GUI.RuningFalse(True)
             
-            cap.set(1,i); 
-            eat, img = cap.read()
-            cv2.imwrite("temp/0{}.jpg".format(j),img)
-            # print(i)
-            i = i+self.fps
-            j = j + 1
-            # self.GUI.LOADING(int(j*100/for_lool))
-            if i+self.fps > frame_count:
-                break
-        # self.GUI.RuningFalse(True)
-            
+def capVideo(cap,i,j,jtemp="",filename = "temp/0{}.jpg"):
+    cap.set(1,i); 
+    eat, img = cap.read()
+    cv2.imwrite(filename.format(j,jtemp),img)
 
-def WriteFileTemp(loop,gpsLat,gpslong,km_h,filename = "temp/0{}.jpg"):
+def WriteFileTemp(count,loop,gpsLat,gpslong,km_h,looptemp = "",filename = "temp/0{}.jpg"):
     f = open("temp.txt", "a")
-    strd = str(loop)+","+str(gpsLat)+","+str(gpslong)+","+str(int(km_h*3600))+","+str("{:.2f}".format(km_h*1000))+","+str(filename.format(loop))+"\n"
+    strd = str(count)+","+str(gpsLat)+","+str(gpslong)+","+str(int(km_h*3600))+","+str("{:.2f}".format(km_h*1000))+","+str(filename.format(loop,looptemp))+"\n"
     f.write(strd)
     f.close()
 
-from math import radians, cos, sin, asin, sqrt
 def haversine(lat1 ,lon1 ,lat2 ,lon2):
     lat1 ,lon1 ,lat2 ,lon2 = coverStrtoFloat(lat1 ,lon1 ,lat2 ,lon2)
 
@@ -86,11 +73,10 @@ def haversine(lat1 ,lon1 ,lat2 ,lon2):
     km = 6371* c
     return km
 
-import numpy as np
-def interpData(lat1 ,lon1 ,lat2 ,lon2):
+def interpData(lat1 ,lon1 ,lat2 ,lon2, InterLoop):
     lat1 ,lon1 ,lat2 ,lon2 = coverStrtoFloat(lat1 ,lon1 ,lat2 ,lon2)
     
-    times = [0, 2]
+    times = [0, InterLoop+1]
     lat = [lat1, lat2]
     lon = [lon1, lon2]
     t = np.arange(0, times[len(times)-1]+1)
@@ -100,8 +86,9 @@ def interpData(lat1 ,lon1 ,lat2 ,lon2):
 
     array = []
     for i in range(len(latint)):
-        if i != 0 and i != len(latint)-1:
-            array.append([latint[i],lonint[i]])
+        # if i != 0 or i != len(latint):
+        #     array.append([latint[i],lonint[i]])
+        array.append([latint[i],lonint[i]])
     return array
 
 def coverStrtoFloat(lat1 ,lon1 ,lat2 ,lon2):
@@ -111,3 +98,24 @@ def coverStrtoFloat(lat1 ,lon1 ,lat2 ,lon2):
     lon2 = float(lon2)
     return lat1 ,lon1 ,lat2 ,lon2
 
+def NewFolder():
+    dirname = "temp"
+    dirname2 = "tempVideo"
+    dirname3 = "detectOut"
+    try:
+        os.makedirs(dirname)
+        os.makedirs(dirname2)
+        os.makedirs(dirname3) 
+    except OSError:
+        if os.path.exists(dirname) or os.path.exists(dirname2)  or os.path.exists(dirname3):
+            pass
+        else:
+            raise
+
+def ReadFileGpsPath(Path):
+    GPS = []
+    with open(Path) as f:
+        lines = [line.rstrip() for line in f]
+    for i in lines:
+        GPS.append(i.split(", "))
+    return GPS

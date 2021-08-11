@@ -510,6 +510,7 @@ class AI:
 
         model_classifier = Model([feature_map_input, roi_input], classifier)
 
+        C.model_path = "model/model_frcnn_vgg.hdf5"
         print(f'Loading weights from {C.model_path}')
         model_rpn.load_weights(C.model_path, by_name=True)
         model_classifier.load_weights(C.model_path, by_name=True)
@@ -629,7 +630,6 @@ class AI:
             all_forVideo.append(img)
             self.GUI.SET_IMG_OR()
             self.GUI.SET_IMG_DETECT(img)
-            self.GUI.NEXT_FILE_TEMP()
             self.GUI.canvas_1.SetArrayPlotUpdate(self.real_Position)
             self.GUI.canvas.SetArrayPlotUpdate(self.real_Position)
         self.GUI.canvas_1.SetArrayPlotUpdate(self.real_Position)
