@@ -19,6 +19,11 @@ class Ui_MainWindow(object):
             self.ImgShowNow = 0
             self.distanceAll = 0.0
             self.FileTextIndex = 0
+            self.real_Position = []
+            self.Plothole = []
+            self.Crack = []
+            self.Repair = []
+            self.ready = False
             MainWindow.setObjectName("MainWindow")
             MainWindow.resize(1091, 581)
             self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -221,10 +226,10 @@ class Ui_MainWindow(object):
         self.pushButton_3.setText(_translate("MainWindow", "Detect"))
         self.groupBox.setTitle(_translate("MainWindow", "Image"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Data"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "P"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "C"))
-        self.comboBox.setItemText(2, _translate("MainWindow", "R"))
-        self.comboBox.setItemText(3, _translate("MainWindow", "ALL"))
+        self.comboBox.setItemText(0, _translate("MainWindow", "ALL"))
+        self.comboBox.setItemText(1, _translate("MainWindow", "Plothole"))
+        self.comboBox.setItemText(2, _translate("MainWindow", "Crack"))
+        self.comboBox.setItemText(3, _translate("MainWindow", "Repair"))
         self.groupBox_3.setTitle(_translate("MainWindow", "Detect"))
         self.groupBox_4.setTitle(_translate("MainWindow", "Deteil"))
         self.label_13.setText(_translate("MainWindow", "Lat:"))
@@ -237,12 +242,24 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Km/h"))
         self.label_17.setText(_translate("MainWindow", "GPS"))
 
+
         self.pushButton.clicked.connect(self.DIR_FILE_PATH)
         self.pushButton_2.clicked.connect(self.DIR_FILE_SAVE)
         self.pushButton_3.clicked.connect(self.fuck)
         self.pushButton_4.clicked.connect(self.DIR_FILE_PATH_GPS)
 
+        self.comboBox.activated[str].connect(self.onChanged) 
 
+    def onChanged(self,text):
+        if self.ready == True:
+            if text == "ALL":
+                self.canvas.SetArrayPlotUpdate(self.real_Position)
+            elif text == "Plothole":
+                self.canvas.SetArrayPlotUpdate(self.Plothole)
+            elif text == "Crack":
+                self.canvas.SetArrayPlotUpdate(self.Crack)
+            elif text == "Repair":
+                self.canvas.SetArrayPlotUpdate(self.Repair)
  
     def LOADING(self,intData):
         self.progressBar.setProperty("value",intData)
@@ -312,6 +329,7 @@ class Ui_MainWindow(object):
         threadForRun = PredictThread.RuningAI(self.AIOBJ)
         threadForRun.start()
         self.RuningFalse(False)
+        self.ready = True
 
     def RuningFalse(self,bool):
         self.pushButton.setEnabled(bool)
@@ -337,6 +355,12 @@ class Ui_MainWindow(object):
             img = cv2.imread(self.FileImg[self.ImgShowNow-1])
             self.NEXT_FILE_TEMP()
         self.setImg_label(img,self.label)
+
+    def Set_Array_report(self,real_Position,Plothole,Crack,Repair):
+        self.real_Position = real_Position
+        self.Plothole = Plothole
+        self.Crack = Crack
+        self.Repair = Repair
 
 
 if __name__ == "__main__":

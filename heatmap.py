@@ -7,7 +7,7 @@ from scipy.ndimage.filters import gaussian_filter
 import matplotlib.cm as cm
 
 class heatmap(FigureCanvasQTAgg):
-    def __init__(self, parent, width=3.5, height=2, dpi=100):
+    def __init__(self, parent, width=3.6, height=1, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
  
@@ -61,7 +61,7 @@ def spliArray(arrayList,indexFps):
         ix = ix + indexFps 
     return array  
 
-def myplot(x, y, s, bins=[1920,900]):
+def myplot(x, y, s, bins=[1920,1000]):
     heatmap, xedges, yedges = np.histogram2d(x, y, bins=bins)
     heatmap = gaussian_filter(heatmap, sigma=s)
 

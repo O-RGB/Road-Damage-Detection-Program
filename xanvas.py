@@ -6,7 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 class Canvas(FigureCanvasQTAgg):
-    def __init__(self, parent, width=3.5, height=0.88, dpi=100):
+    def __init__(self, parent, width=3.6, height=0.88, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
         self.axes = fig.add_subplot(111)
  
@@ -14,6 +14,7 @@ class Canvas(FigureCanvasQTAgg):
         self.setParent(parent)
         self.axes.get_xaxis().set_visible(False)
         self.axes.get_yaxis().set_visible(False)
+
         plt.show()
  
  

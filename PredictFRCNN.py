@@ -24,6 +24,10 @@ class AI:
     def __init__(self,GUI):
         self.GUI = GUI
         self.real_Position = []
+        self.Plothole = []
+        self.Crack = []
+        self.Repair = []
+
         
 
     def setTemp(self,temp):
@@ -597,9 +601,15 @@ class AI:
 
             all_dets = []
             temp_real_Position = []
+            temp_all_if_plothole = []
+            temp_all_if_crack = []
+            temp_all_if_repei = []
             for key in bboxes:
+
+
                 
                 bbox = np.array(bboxes[key])
+                print(bbox)
                 
                 new_boxes, new_probs = self.non_max_suppression_fast(bbox, np.array(probs[key]), overlap_thresh = 0.3)
                 for jk in range(new_boxes.shape[0]):
@@ -607,8 +617,12 @@ class AI:
                     (real_x1, real_y1, real_x2, real_y2) = self.get_real_coordinates(ratio, x1, y1, x2, y2)
 
                     imgforGUI = img[real_y1:real_y2, real_x1:real_x2]
-                    cv2.imwrite('detectOut/{}.png'.format(idx),imgforGUI)
+                    cv2.imwrite('detectOut/{}.{}.{}.png'.format(idx,key,jk),imgforGUI)
                     temp_real_Position.append([real_x1, real_y1, real_x2, real_y2])
+                    if key == 'pothole': temp_all_if_plothole.append([real_x1, real_y1, real_x2, real_y2])
+                    elif key == 'crack': temp_all_if_crack.append([real_x1, real_y1, real_x2, real_y2])
+                    elif key == 'repei': temp_all_if_repei.append([real_x1, real_y1, real_x2, real_y2])
+
                     
                     
                     cv2.rectangle(img,(real_x1, real_y1), (real_x2, real_y2), (int(class_to_color[key][0]), int(class_to_color[key][1]), int(class_to_color[key][2])),2)
@@ -626,6 +640,9 @@ class AI:
 
 
             self.real_Position.append(temp_real_Position)
+            self.Plothole.append(temp_all_if_plothole)
+            self.Crack.append(temp_all_if_crack)
+            self.Repair.append(temp_all_if_repei)
             cv2.imwrite('tempVideo/{}.png'.format(idx),img)
             all_forVideo.append(img)
             self.GUI.SET_IMG_OR()
@@ -634,6 +651,8 @@ class AI:
             self.GUI.canvas.SetArrayPlotUpdate(self.real_Position)
         self.GUI.canvas_1.SetArrayPlotUpdate(self.real_Position)
         self.GUI.canvas.SetArrayPlotUpdate(self.real_Position)
+        self.GUI.Set_Array_report(self.real_Position,self.Plothole,self.Crack,self.Repair)
+        self.GUI.RuningFalse(True)
 
         
 

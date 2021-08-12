@@ -30,22 +30,30 @@ class Counter(Thread):
             if (j != 0) and (j <= len(GPS)):
                 lat1,long1,lat2,long2 = GPS[j-1][0],GPS[j-1][1],GPS[j][0],GPS[j][1]
                 km_h = haversine(lat1,long1,lat2,long2)
+
+                # km_h_if = int(km_h*3600)
+                # if km_h_if > 50: InterLoop = 5
+                # elif km_h_if > 60: InterLoop = 6
+                # elif km_h_if > 70: InterLoop = 7
+               
                 InterGPS = interpData(lat1,long1,lat2,long2,InterLoop)
                 km_hx = (km_h/(InterLoop+1))
                 km_h = (km_h-(km_hx*InterLoop))
 
-                
                 for i in range(InterLoop):
                     IndexInter = (IndexFrame-self.fps)+(sumall*(i+1))
                     WriteFileTemp(count,j, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,i+1,"temp/0{}.{}.jpg")
-                    capVideo(VideoCapture,IndexInter,j,i,"temp/0{}.{}.jpg")
+                    capVideo(VideoCapture,IndexInter,j,i+1,"temp/0{}.{}.jpg")
                     count = count + 1
 
             WriteFileTemp(count,j,GPS[j][0],GPS[j][1],km_h)
             capVideo(VideoCapture,IndexFrame,j)
             IndexFrame = IndexFrame + self.fps
+            InterLoop = 1
+            
             j = j + 1 # self.GUI.LOADING(int(j*100/for_lool))
             count = count + 1
+
             if IndexFrame+self.fps > frame_count or j >= len(GPS):
                 break 
         self.GUI.RuningFalse(True)
