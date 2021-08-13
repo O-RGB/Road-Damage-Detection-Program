@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import  QFileDialog, QLabel
+from PyQt5.QtWidgets import  QFileDialog, QLabel, QPushButton
 
 import cv2,glob
 
@@ -207,7 +207,14 @@ class Ui_MainWindow(object):
             self.lineEdit_5.raise_()
             self.line_5.raise_()
             self.label_17.raise_()
+
+            
+
+            
+
             MainWindow.setCentralWidget(self.centralwidget)
+
+            
 
             self.canvas = xanvas.Canvas(self.label_5)
             self.canvas_1 = heatmap.heatmap(self.label_6)
@@ -263,9 +270,13 @@ class Ui_MainWindow(object):
                 self.canvas.SetArrayPlotUpdate(self.Repair)
                 
                 
- 
+    def closeEvent(self, event):
+        print("exit")
+
     def LOADING(self,intData):
         self.progressBar.setProperty("value",intData)
+
+    
 
     def READ_FILE_TEMP_TEXT(self):
         self.fileGPS  = [] 

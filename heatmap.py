@@ -71,7 +71,7 @@ def spliArray(arrayList,indexFps):
 
 
 
-def myplot(x, y, s, bins=[1920,1000]):
+def myplot(x, y, s, bins=[2500,600]):
     heatmap, xedges, yedges = np.histogram2d(x, y, bins=bins)
     heatmap = gaussian_filter(heatmap, sigma=s)
 

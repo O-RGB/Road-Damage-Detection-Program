@@ -96,7 +96,7 @@ class CreadPDF:
                 e = 39.5
             latlng = GPS[int(arrayAllfolder[i][0])][1]+", "+GPS[int(arrayAllfolder[i][0])][2]
             sc = arrayAllfolder[i][2]
-            time = arrayAllfolder[i][5]
+            time = GPS[int(arrayAllfolder[i][0])][5]
             self.creadTable(latlng,sc,arrayAllPhoto[i],y,time)
             y=y+e
         
