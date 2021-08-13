@@ -1,3 +1,4 @@
+import datetime
 import re
 from threading import Thread 
 import os
@@ -42,14 +43,14 @@ class Counter(Thread):
 
                 for i in range(InterLoop):
                     IndexInter = (IndexFrame-self.fps)+(sumall*(i+1))
-                    WriteFileTemp(count,j, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,i+1,"temp/0{}.{}.jpg")
+                    WriteFileTemp(count,j, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,IndexInter/self.fps)
                     capVideo(VideoCapture,IndexInter,j,i+1,"temp/0{}.{}.jpg")
                     count = count + 1
 
-            WriteFileTemp(count,j,GPS[j][0],GPS[j][1],km_h)
+            WriteFileTemp(count,j,GPS[j][0],GPS[j][1],km_h,IndexFrame/self.fps)
             capVideo(VideoCapture,IndexFrame,j)
             IndexFrame = IndexFrame + self.fps
-            InterLoop = 1
+            InterLoop = 2
             
             j = j + 1 # self.GUI.LOADING(int(j*100/for_lool))
             count = count + 1
@@ -63,11 +64,26 @@ def capVideo(cap,i,j,jtemp="",filename = "temp/0{}.jpg"):
     eat, img = cap.read()
     cv2.imwrite(filename.format(j,jtemp),img)
 
-def WriteFileTemp(count,loop,gpsLat,gpslong,km_h,looptemp = "",filename = "temp/0{}.jpg"):
+def WriteFileTemp(count,loop,gpsLat,gpslong,km_h,time):
     f = open("temp.txt", "a")
-    strd = str(count)+","+str(gpsLat)+","+str(gpslong)+","+str(int(km_h*3600))+","+str("{:.2f}".format(km_h*1000))+","+str(filename.format(loop,looptemp))+"\n"
+
+    seconds = time*60
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    time =  ("%02d:%02d:%02d"%(hours,minutes,seconds))
+
+    strd = str(count)+","+str(gpsLat)+","+str(gpslong)+","+str(int(km_h*3600))+","+str("{:.2f}".format(km_h*1000))+","+str(time)+"\n"
     f.write(strd)
     f.close()
+
+def str_td(td):
+    s = str(td).split(", ", 1)
+    a = s[-1]
+    if a[1] == ':':
+        a = "0" + a
+    s2 = s[:-1] + [a]
+    return ", ".join(s2)
 
 def haversine(lat1 ,lon1 ,lat2 ,lon2):
     lat1 ,lon1 ,lat2 ,lon2 = coverStrtoFloat(lat1 ,lon1 ,lat2 ,lon2)

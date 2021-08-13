@@ -10,6 +10,7 @@ import TEMP_DIRS_POHOTO as READFILE
 import PredictFRCNN
 import PredictThread
 from config import Config
+import creadPDF as pdf
 
 class Ui_MainWindow(object):
 
@@ -260,6 +261,8 @@ class Ui_MainWindow(object):
                 self.canvas.SetArrayPlotUpdate(self.Crack)
             elif text == "Repair":
                 self.canvas.SetArrayPlotUpdate(self.Repair)
+                
+                
  
     def LOADING(self,intData):
         self.progressBar.setProperty("value",intData)
@@ -308,10 +311,11 @@ class Ui_MainWindow(object):
 
   
     def DIR_FILE_PATH_GPS(self):
-        resopnse = QFileDialog.getOpenFileName()
-        self._file_path = resopnse[0]
-        self.lineEdit_4.setText(resopnse[0])
-        self.lineEdit_3.setText(resopnse[0])
+        # resopnse = QFileDialog.getOpenFileName()
+        # self._file_path = resopnse[0]
+        # self.lineEdit_4.setText(resopnse[0])
+        # self.lineEdit_3.setText(resopnse[0])
+        self.SaveTest()
         
     def DIR_FILE_PATH(self):
         resopnse = QFileDialog.getOpenFileName()
@@ -362,6 +366,10 @@ class Ui_MainWindow(object):
         self.Crack = Crack
         self.Repair = Repair
 
+    def SaveTest(self):
+        pdf.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair)
+        
+        
 
 if __name__ == "__main__":
     import sys

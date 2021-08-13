@@ -7,10 +7,10 @@ from matplotlib.figure import Figure
 
 class Canvas(FigureCanvasQTAgg):
     def __init__(self, parent, width=3.6, height=0.88, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
+        self.fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = self.fig.add_subplot(111)
  
-        FigureCanvasQTAgg.__init__(self, fig)
+        FigureCanvasQTAgg.__init__(self, self.fig)
         self.setParent(parent)
         self.axes.get_xaxis().set_visible(False)
         self.axes.get_yaxis().set_visible(False)
@@ -50,6 +50,12 @@ class Canvas(FigureCanvasQTAgg):
 
         plt.show()
 
+    def save_plot_and_get(self):
+        figcopy = self.fig.add_subplot(111)
+        figcopy.set_size_inches(18.5, 10.5)
+        figcopy.savefig('test.jpg', dpi=100)
+        img = cv2.imread("test.jpg")
+        return img
 
 def spliArray(arrayList,indexFps):
     array = []  

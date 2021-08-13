@@ -538,6 +538,7 @@ class AI:
             st = time.time()
             filepath = os.path.join(img_path,img_name)
             img = cv2.imread(filepath)
+            imgReal = img.copy()
             X, ratio = self.format_img(img, C)
             img_scaled = (np.transpose(X[0,:,:,:],(1,2,0)) + 127.5).astype('uint8')
             # if K.image_data_format() == 'tf':
@@ -616,12 +617,13 @@ class AI:
                     (x1, y1, x2, y2) = new_boxes[jk,:]
                     (real_x1, real_y1, real_x2, real_y2) = self.get_real_coordinates(ratio, x1, y1, x2, y2)
 
-                    imgforGUI = img[real_y1:real_y2, real_x1:real_x2]
-                    cv2.imwrite('detectOut/{}.{}.{}.png'.format(idx,key,jk),imgforGUI)
+                    imgforGUI = imgReal[real_y1:real_y2, real_x1:real_x2]
+                    cv2.imwrite('detectOut/{}.{}.{}.{}.png'.format(idx,jk,key,self.GUI.FileTextIndex),imgforGUI)
+                    
                     temp_real_Position.append([real_x1, real_y1, real_x2, real_y2])
                     if key == 'pothole': temp_all_if_plothole.append([real_x1, real_y1, real_x2, real_y2])
                     elif key == 'crack': temp_all_if_crack.append([real_x1, real_y1, real_x2, real_y2])
-                    elif key == 'repei': temp_all_if_repei.append([real_x1, real_y1, real_x2, real_y2])
+                    elif key == 'repai': temp_all_if_repei.append([real_x1, real_y1, real_x2, real_y2])
 
                     
                     
