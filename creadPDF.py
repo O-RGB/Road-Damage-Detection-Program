@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from natsort import natsorted
 import os
-
+import base64
 
 class CreadPDF:
     def __init__(self,real_Position,Plothole,Crack,Repair):
@@ -31,11 +31,15 @@ class CreadPDF:
         self.countCrack = self.countData(self.Crack)
         self.countRepair = self.countData(self.Repair)
         self.bar([self.countPlothole,self.countCrack,self.countRepair])
+
+        self.FileForWeb = ""
         
         self.cread()
 
 
     def cread(self):
+
+        GPS = self.ReadFileGpsPath()
 
         self.pdf = FPDF()
         self.pdf.add_page()
@@ -44,8 +48,8 @@ class CreadPDF:
         self.tabBold = "       "
         
         self.setfont(20,"ระบบตรวจจับความเสียหายถนน",10, Bold = True)
-        self.setfont(16,self.tab + "ตรวจจับตั้งแต่ตำแหน่งที่ 16.05146584651, 103.1684651684684 ถึง 16.05146584651, 103.1684651684684",7)
-        self.setfont(16,"ด้วยเวลา 1.30 นาที ระยะทาง 160 เมตร ความเร็วเฉลี่ย 70 กิโลเมตรต่อชั่วโมง โดยพบหลุม "+str(self.countPlothole)+" ครั้ง ถนนแตก "+str(self.countCrack)+" ครั้ง",7)
+        self.setfont(16,self.tab + "ตรวจจับตั้งแต่ตำแหน่งที่ "+GPS[0][0]+","+GPS[0][1]+" ถึง "+GPS[len(GPS)-1][0]+","+GPS[len(GPS)-1][1]+" ",7)
+        self.setfont(16,"ด้วยเวลา "+GPS[len(GPS)-1][5]+" นาที ระยะทาง 160 เมตร ความเร็วเฉลี่ย 70 กิโลเมตรต่อชั่วโมง โดยพบหลุม "+str(self.countPlothole)+" ครั้ง ถนนแตก "+str(self.countCrack)+" ครั้ง",7)
         self.setfont(16,"ถนนซ่อมปะ "+str(self.countRepair)+" ครั้ง",10)
 
         self.pdf.image("real.jpg",     x=2, y=57,  w=200, h=50)
@@ -83,7 +87,7 @@ class CreadPDF:
         self.col_width = epw/2
         self.th = self.pdf.font_size
 
-        GPS = self.ReadFileGpsPath()
+        
         arrayAllfolder,arrayAllPhoto = self.ReadDetectOut()
 
         self.creadNameTabel()
@@ -97,10 +101,15 @@ class CreadPDF:
             latlng = GPS[int(arrayAllfolder[i][0])][1]+", "+GPS[int(arrayAllfolder[i][0])][2]
             sc = arrayAllfolder[i][2]
             time = GPS[int(arrayAllfolder[i][0])][5]
+            self.FileForWeb += latlng+", "+sc
             self.creadTable(latlng,sc,arrayAllPhoto[i],y,time)
             y=y+e
         
-        self.pdf.output("GFG.pdf")  
+        self.pdf.output("GFG.pdf") 
+        file = open("GFG.txt", "w")
+        file.write(self.FileForWeb)
+        file.close 
+
         os.remove("crack.jpg")
         os.remove("plothole.jpg")
         os.remove("repair.jpg")
@@ -214,7 +223,11 @@ class CreadPDF:
         elif cs == "crack": cs = u""
         elif cs == "repai": cs = u"ถนนซ่อมปะ"
 
-
+        img = cv2.imread("detectOut/"+Photo)
+        img = cv2.resize(img, (130,130), interpolation = cv2.INTER_AREA)
+        jpg_img = cv2.imencode('.jpg', img)
+        self.FileForWeb += ", "+ base64.b64encode(jpg_img[1]).decode('utf-8')
+        self.FileForWeb += "\n"
 
         temp = ["",""]
         spa = [temp,temp,["","ตำแหน่ง: "+pos],["","หมวด: "+cs],["","เวลา: "+time],temp,temp]

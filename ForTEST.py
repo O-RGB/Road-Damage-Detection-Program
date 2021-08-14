@@ -182,3 +182,24 @@
 # hours, minutes = divmod(minutes, 60)
 
 # print ("%02d:%02d:%02d"%(hours,minutes,seconds))
+
+real = ""
+filetest = "efwefwef"
+heetest = "66666"
+
+real += filetest+", "+heetest
+
+
+
+real += ", "+ "base64.b64encode(jpg_img[1]).decode('utf-8')"
+real +=  "\n"
+
+
+filetest = "efwewefaweffwef"
+heetest = "6666awgaweg6"
+
+real += filetest+", "+heetest
+real +=  ", "+ "base64.b64encode(jpg_img[1]).decode('utf-8')"
+real +=  "\n"
+
+print(real)
