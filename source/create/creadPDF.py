@@ -12,16 +12,19 @@ import matplotlib.pyplot as plt
 from natsort import natsorted
 import os
 import base64
+import shutil
 
 class CreadPDF:
-    def __init__(self,real_Position,Plothole,Crack,Repair):
-        # self.real_Position = real_Position
+    def __init__(self,real_Position,Plothole,Crack,Repair,savepath):
+
         self.real_Position = real_Position
         self.plot(self.real_Position,"real","orange")
         self.Plothole = Plothole
         self.plot(self.Plothole,"plothole","red")
         self.Crack = Crack
         self.plot(self.Crack,"crack","blue")
+
+        self.savepath = savepath
 
         self.Repair = Repair
         self.plot(self.Repair,"repair","green")
@@ -38,7 +41,7 @@ class CreadPDF:
 
 
     def cread(self):
-
+        print("cread")
         GPS = self.ReadFileGpsPath()
 
         self.pdf = FPDF()
@@ -80,15 +83,15 @@ class CreadPDF:
 
         self.setfont(20, self.tabBold + "ตำแหน่งและภาพ",10, Bold = True)
 
-        self.pdf.add_font('THSarabun_0', '', 'font/THSarabun_0.ttf', uni=True)
+        self.pdf.add_font('THSarabun_0', '', 'source/font/THSarabun_0.ttf', uni=True)
         self.pdf.set_font('THSarabun_0', '', 16) 
 
         epw = self.pdf.w - 2*self.pdf.l_margin
         self.col_width = epw/2
         self.th = self.pdf.font_size
 
-        
         arrayAllfolder,arrayAllPhoto = self.ReadDetectOut()
+        
 
         self.creadNameTabel()
 
@@ -105,10 +108,13 @@ class CreadPDF:
             self.creadTable(latlng,sc,arrayAllPhoto[i],y,time)
             y=y+e
         
-        self.pdf.output("GFG.pdf") 
-        file = open("GFG.txt", "w")
+    
+        self.pdf.output(self.savepath) 
+        file = open((self.savepath[:-3]+"txt"), "w")
+        print(self.savepath[:-3]+"txt")
         file.write(self.FileForWeb)
         file.close 
+
 
         os.remove("crack.jpg")
         os.remove("plothole.jpg")
@@ -117,15 +123,18 @@ class CreadPDF:
         os.remove("HeadMap.jpg") 
         os.remove("bar.jpg") 
         os.remove("temp.txt") 
-        os.rmdir("tempVideo")
-        os.rmdir("temp")
+
+        shutil.rmtree('tempVideo')
+        shutil.rmtree('temp')
+        shutil.rmtree('detectOut')
+
 
     def setfont(self,size,text,newline,Bold=False):
         if Bold == True:
-            self.pdf.add_font('THSarabun Bold_0', '', 'font/THSarabun Bold_0.ttf', uni=True)
+            self.pdf.add_font('THSarabun Bold_0', '', 'source/font/THSarabun Bold_0.ttf', uni=True)
             self.pdf.set_font('THSarabun Bold_0', '', size) 
         else:
-            self.pdf.add_font('THSarabun_0', '', 'font/THSarabun_0.ttf', uni=True)
+            self.pdf.add_font('THSarabun_0', '', 'source/font/THSarabun_0.ttf', uni=True)
             self.pdf.set_font('THSarabun_0', '', size) 
         
         self.pdf.cell(20, 10, u''+text)      

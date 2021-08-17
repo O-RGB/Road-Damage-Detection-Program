@@ -21,7 +21,7 @@ class Counter(Thread):
         NewFolder()
         GPS = ReadFileGpsPath(self.GUI._file_GPS)
 
-        InterLoop = 2
+        InterLoop = 1
         sumall = int(self.fps/(InterLoop+1))
         IndexFrame, j, km_h, count  = 0, 0, 0, 0 
         VideoCapture = cv2.VideoCapture(self.DIR,0) 
@@ -33,9 +33,9 @@ class Counter(Thread):
                 km_h = haversine(lat1,long1,lat2,long2)
 
                 km_h_if = int(km_h*3600)
-                if km_h_if > 50: InterLoop = 3
-                elif km_h_if > 60: InterLoop = 4
-                elif km_h_if > 70: InterLoop = 5
+                if km_h_if > 50: InterLoop = 2
+                elif km_h_if > 60: InterLoop = 3
+                elif km_h_if > 70: InterLoop = 4
                
                 InterGPS = interpData(lat1,long1,lat2,long2,InterLoop)
                 km_hx = (km_h/(InterLoop+1))
@@ -50,7 +50,7 @@ class Counter(Thread):
             WriteFileTemp(count,GPS[j][0],GPS[j][1],km_h,IndexFrame/self.fps)
             capVideo(VideoCapture,IndexFrame,j)
             IndexFrame = IndexFrame + self.fps
-            InterLoop = 2
+            InterLoop = 1
             
             j = j + 1 # self.GUI.LOADING(int(j*100/for_lool))
             count = count + 1

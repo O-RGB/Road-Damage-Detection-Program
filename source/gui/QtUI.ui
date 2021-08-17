@@ -114,10 +114,13 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-image : url(icon.png);border-radius: 25px</string>
+       <string notr="true">border-radius: 25px</string>
       </property>
       <property name="text">
        <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="imgicon.qrc">:/icon/icon.png</pixmap>
       </property>
      </widget>
      <widget class="QLabel" name="label_3">
@@ -625,6 +628,8 @@ background-color: rgb(225, 225, 225);</string>
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="imgicon.qrc"/>
+ </resources>
  <connections/>
 </ui>

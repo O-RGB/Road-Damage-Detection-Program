@@ -1,8 +1,8 @@
+import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import  QFileDialog, QLabel, QPushButton
 
 import cv2,glob
-
 from natsort.natsort import natsorted
 import numpy as np
 from source.graph import heatmap,xanvas
@@ -11,7 +11,7 @@ from source.frcnn import PredictFRCNN
 from source.frcnn import RoiPoolingConv
 from source.thread import PredictThread
 from source.frcnn.config  import Config
-from source.create.creadPDF import CreadPDF as pdf
+from source.create import  creadPDF
 
 class Ui_MainWindow(object):
 
@@ -62,17 +62,19 @@ class Ui_MainWindow(object):
             self.label_2 = QtWidgets.QLabel(self.widget)
             self.label_2.setGeometry(QtCore.QRect(30, 20, 51, 51))
             self.label_2.setAutoFillBackground(False)
-            self.label_2.setStyleSheet("background-image : url(source/icon.png);border-radius: 25px")
+            self.label_2.setStyleSheet("border-radius: 25px")
             self.label_2.setText("")
             self.label_2.setObjectName("label_2")
             self.label_3 = QtWidgets.QLabel(self.widget)
             self.label_3.setGeometry(QtCore.QRect(100, 30, 131, 16))
+            self.label_3.setStyleSheet("color: rgb(255, 255, 255);")
             font = QtGui.QFont()
             font.setPointSize(14)
             self.label_3.setFont(font)
             self.label_3.setObjectName("label_3")
             self.label_4 = QtWidgets.QLabel(self.widget)
             self.label_4.setGeometry(QtCore.QRect(100, 50, 131, 16))
+            self.label_4.setStyleSheet("color: rgb(255, 255, 255);")
             font = QtGui.QFont()
             font.setPointSize(8)
             self.label_4.setFont(font)
@@ -244,7 +246,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Road Detector"))
         self.pushButton.setText(_translate("MainWindow", "..."))
         self.pushButton_2.setText(_translate("MainWindow", "PDF SAVE"))
         self.label_3.setText(_translate("MainWindow", "Road Detector"))
@@ -269,13 +271,17 @@ class Ui_MainWindow(object):
         self.label_17.setText(_translate("MainWindow", "GPS"))
 
 
+        self.setImg_label(cv2.imread("source/gui/iconB.png"),self.label_2)
+
         self.pushButton.clicked.connect(self.DIR_FILE_PATH)
         self.pushButton_4.clicked.connect(self.DIR_FILE_PATH_GPS)
         self.pushButton_3.clicked.connect(self.START)
         self.pushButton_2.clicked.connect(self.PDF_SAVE)
         
         
-        
+        self.lineEdit.setEnabled(False)
+        self.lineEdit_2.setEnabled(False)
+        self.pushButton_2.setEnabled(False)
         self.pushButton_2.setEnabled(False)
         self.pushButton_3.setEnabled(False)
         self.pushButton_4.setEnabled(False)
@@ -289,20 +295,22 @@ class Ui_MainWindow(object):
 
     def DIR_FILE_PATH(self):
         try:
-            resopnse = QFileDialog.getOpenFileName()
-            self._file_path = resopnse[0]
-            self.lineEdit.setText(resopnse[0])
-            self.pushButton_4.setEnabled(True)
-            self.SET_IMG_OR("first")
+            resopnse = QFileDialog.getOpenFileName(None, "Select Video File", "", "Video File (*.mp4 *.avi )")
+            if resopnse:
+                self._file_path = resopnse[0]
+                self.lineEdit.setText(resopnse[0])
+                self.pushButton_4.setEnabled(True)
+                self.SET_IMG_OR("first")
         except:
             print()
 
     def DIR_FILE_PATH_GPS(self):
         try:
-            resopnse = QFileDialog.getOpenFileName()
-            self._file_GPS = resopnse[0]
-            self.lineEdit_2.setText(resopnse[0])
-            self.RuningFalse(True)
+            resopnse = QFileDialog.getOpenFileName(None, "Select Text file", "", "Text file (*.txt)")
+            if resopnse:
+                self._file_GPS = resopnse[0]
+                self.lineEdit_2.setText(resopnse[0])
+                self.RuningFalse(True)
             
         except:
             print()
@@ -319,8 +327,19 @@ class Ui_MainWindow(object):
         self.RuningFalse(False)
         self.ready = True
 
+    def PDF_SAVE(self):
+        # try:
+            response = QFileDialog.getSaveFileName(None, "Save PDF file", "Report.pdf", "Adobe PDF Files (*.pdf)")
+            if response:
+                self.RuningFalse(True)
+                pdfOBJ = creadPDF.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair,response[0])
+                
+        # except:
+        #     print()
+       
 
 
+    # //////////////////////////////////////
     def onChanged(self,text):
         if self.ready == True:
             if text == "ALL":
@@ -354,9 +373,9 @@ class Ui_MainWindow(object):
         self.create_word(long,self.lineEdit_3)
 
     def create_word(self,str,label):
-        blank_image = np.zeros((30,230,3), np.uint8)
+        blank_image = np.zeros((30,400,3), np.uint8)
         blank_image.fill(255) 
-        cv2.putText(blank_image, str, (20,20), cv2.FONT_HERSHEY_SIMPLEX , 0.5, (0, 0, 0))
+        cv2.putText(blank_image, str, (17,17), cv2.FONT_HERSHEY_SIMPLEX , 0.5, (0, 0, 0))
         self.setImg_label(blank_image,label)
 
     def setImg_label(self,img,label):
@@ -403,14 +422,16 @@ class Ui_MainWindow(object):
         self.Crack = Crack
         self.Repair = Repair
 
-    def PDF_SAVE(self):
-        pdf.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair)
+    
         
         
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
+    app_icon = QtGui.QIcon()
+    app_icon.addFile('source/gui/iconW.png', QtCore.QSize(24,24))
+    app.setWindowIcon(app_icon)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
