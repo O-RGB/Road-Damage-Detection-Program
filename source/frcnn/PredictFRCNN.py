@@ -16,8 +16,9 @@ from keras import backend as K
 from keras.layers import Flatten, Dense, Input, Conv2D, MaxPooling2D, Dropout
 from keras.layers import TimeDistributed
 from keras.models import Model
-import RoiPoolingConv
-from config import Config
+
+from source.frcnn import RoiPoolingConv
+from source.frcnn.config  import Config
 
 
 class AI:
@@ -419,30 +420,6 @@ class AI:
             print(e)
             return x, y, w, h
 
-    def TEMP_DIRS_POHOTO(self,_VIDEO_FILE):
-        dirname = "temp"
-        dirname2 = "tempVideo"
-        try:
-            os.makedirs(dirname)
-            os.makedirs(dirname2)
-        except OSError:
-            if os.path.exists(dirname) or os.path.exists(dirname2):
-                pass
-            else:
-                raise
-        i = 0
-        j = 0
-        while True:
-            cap = cv2.VideoCapture(_VIDEO_FILE,0) 
-            cap.set(1,i); 
-            eat, img = cap.read()
-            cv2.imwrite("temp/0{}.jpg".format(j),img)
-            print(i)
-            i = i+5
-            j = j + 1
-            if i > 800:
-                break
-        return j
 
     def CONFIG_SESSION(self):
         sys.setrecursionlimit(40000)
@@ -456,7 +433,7 @@ class AI:
         
         self.GUI.READ_FILE_TEMP_TEXT()
 
-        filename = 'model/model_vgg_config.pickle'
+        filename = 'source/model/model_vgg_config.pickle'
         with open(filename, 'rb') as f_in:
             C = pickle.load(f_in)
 
@@ -514,7 +491,7 @@ class AI:
 
         model_classifier = Model([feature_map_input, roi_input], classifier)
 
-        C.model_path = "model/model_frcnn_vgg.hdf5"
+        C.model_path = "source/model/model_frcnn_vgg.hdf5"
         print(f'Loading weights from {C.model_path}')
         model_rpn.load_weights(C.model_path, by_name=True)
         model_classifier.load_weights(C.model_path, by_name=True)

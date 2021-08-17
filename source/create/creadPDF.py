@@ -116,6 +116,9 @@ class CreadPDF:
         os.remove("real.jpg")
         os.remove("HeadMap.jpg") 
         os.remove("bar.jpg") 
+        os.remove("temp.txt") 
+        os.rmdir("tempVideo")
+        os.rmdir("temp")
 
     def setfont(self,size,text,newline,Bold=False):
         if Bold == True:

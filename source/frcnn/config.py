@@ -1,5 +1,4 @@
 import math
-import pickle
 
 class Config(object):
 	def __init__(self):

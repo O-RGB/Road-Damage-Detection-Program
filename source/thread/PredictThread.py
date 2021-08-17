@@ -1,5 +1,4 @@
 from threading import Thread 
-from config import Config
 class RuningAI(Thread):
     
     def __init__(self, AIOBJ):

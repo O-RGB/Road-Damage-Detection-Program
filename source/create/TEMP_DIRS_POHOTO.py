@@ -19,9 +19,9 @@ class Counter(Thread):
     def run(self):
         
         NewFolder()
-        GPS = ReadFileGpsPath('C:/Users/okoza/Desktop/gps.txt')
+        GPS = ReadFileGpsPath(self.GUI._file_GPS)
 
-        InterLoop = 4
+        InterLoop = 2
         sumall = int(self.fps/(InterLoop+1))
         IndexFrame, j, km_h, count  = 0, 0, 0, 0 
         VideoCapture = cv2.VideoCapture(self.DIR,0) 
@@ -32,10 +32,10 @@ class Counter(Thread):
                 lat1,long1,lat2,long2 = GPS[j-1][0],GPS[j-1][1],GPS[j][0],GPS[j][1]
                 km_h = haversine(lat1,long1,lat2,long2)
 
-                # km_h_if = int(km_h*3600)
-                # if km_h_if > 50: InterLoop = 5
-                # elif km_h_if > 60: InterLoop = 6
-                # elif km_h_if > 70: InterLoop = 7
+                km_h_if = int(km_h*3600)
+                if km_h_if > 50: InterLoop = 3
+                elif km_h_if > 60: InterLoop = 4
+                elif km_h_if > 70: InterLoop = 5
                
                 InterGPS = interpData(lat1,long1,lat2,long2,InterLoop)
                 km_hx = (km_h/(InterLoop+1))
@@ -43,11 +43,11 @@ class Counter(Thread):
 
                 for i in range(InterLoop):
                     IndexInter = (IndexFrame-self.fps)+(sumall*(i+1))
-                    WriteFileTemp(count,j, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,IndexInter/self.fps)
+                    WriteFileTemp(count, InterGPS[i+1][0],InterGPS[i+1][1],km_hx,IndexInter/self.fps)
                     capVideo(VideoCapture,IndexInter,j,i+1,"temp/0{}.{}.jpg")
                     count = count + 1
 
-            WriteFileTemp(count,j,GPS[j][0],GPS[j][1],km_h,IndexFrame/self.fps)
+            WriteFileTemp(count,GPS[j][0],GPS[j][1],km_h,IndexFrame/self.fps)
             capVideo(VideoCapture,IndexFrame,j)
             IndexFrame = IndexFrame + self.fps
             InterLoop = 2
@@ -58,21 +58,19 @@ class Counter(Thread):
             if IndexFrame+self.fps > frame_count or j >= len(GPS):
                 break 
         self.GUI.RuningFalse(True)
+        self.GUI.START_FOR_AI()
             
 def capVideo(cap,i,j,jtemp="",filename = "temp/0{}.jpg"):
     cap.set(1,i); 
     eat, img = cap.read()
     cv2.imwrite(filename.format(j,jtemp),img)
 
-def WriteFileTemp(count,loop,gpsLat,gpslong,km_h,time):
+def WriteFileTemp(count,gpsLat,gpslong,km_h,time):
     f = open("temp.txt", "a")
-
     seconds = time*60
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
-
     time =  ("%02d:%02d:%02d"%(hours,minutes,seconds))
-
     strd = str(count)+","+str(gpsLat)+","+str(gpslong)+","+str(int(km_h*3600))+","+str("{:.2f}".format(km_h*1000))+","+str(time)+"\n"
     f.write(strd)
     f.close()

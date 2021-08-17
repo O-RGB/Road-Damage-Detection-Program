@@ -5,18 +5,19 @@ import cv2,glob
 
 from natsort.natsort import natsorted
 import numpy as np
-import heatmap,xanvas
-import TEMP_DIRS_POHOTO as READFILE
-import PredictFRCNN
-import PredictThread
-from config import Config
-import creadPDF as pdf
+from source.graph import heatmap,xanvas
+from source.create import TEMP_DIRS_POHOTO as READFILE
+from source.frcnn import PredictFRCNN
+from source.frcnn import RoiPoolingConv
+from source.thread import PredictThread
+from source.frcnn.config  import Config
+from source.create.creadPDF import CreadPDF as pdf
 
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
             self.AIOBJ = PredictFRCNN.AI(self)
-            self.FileImg = []
+            self.FileImg = []   
             self.ImgShowNow = 0
             self.distanceAll = 0.0
             self.FileTextIndex = 0
@@ -42,7 +43,7 @@ class Ui_MainWindow(object):
             self.widget.setStyleSheet("background-color: rgb(100, 100, 100);")
             self.widget.setObjectName("widget")
             self.pushButton = QtWidgets.QPushButton(self.widget)
-            self.pushButton.setGeometry(QtCore.QRect(0, 90, 271, 41))
+            self.pushButton.setGeometry(QtCore.QRect(230, 100, 31, 21))
             font = QtGui.QFont()
             font.setPointSize(12)
             self.pushButton.setFont(font)
@@ -51,26 +52,17 @@ class Ui_MainWindow(object):
             self.pushButton.setStyleSheet("background-color: rgb(255, 171, 37);")
             self.pushButton.setObjectName("pushButton")
             self.pushButton_2 = QtWidgets.QPushButton(self.widget)
-            self.pushButton_2.setGeometry(QtCore.QRect(0, 130, 271, 41))
+            self.pushButton_2.setGeometry(QtCore.QRect(0, 230, 271, 41))
             font = QtGui.QFont()
             font.setPointSize(12)
             self.pushButton_2.setFont(font)
             self.pushButton_2.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
             self.pushButton_2.setStyleSheet("background-color: rgb(255, 171, 37);")
             self.pushButton_2.setObjectName("pushButton_2")
-            self.progressBar = QtWidgets.QProgressBar(self.widget)
-            self.progressBar.setGeometry(QtCore.QRect(10, 550, 251, 23))
-            font = QtGui.QFont()
-            font.setPointSize(10)
-            self.progressBar.setFont(font)
-            self.progressBar.setStyleSheet("color: rgb(255, 255, 255);")
-            self.progressBar.setLocale(QtCore.QLocale(QtCore.QLocale.Afar, QtCore.QLocale.Ethiopia))
-            self.progressBar.setProperty("value", 0)
-            self.progressBar.setObjectName("progressBar")
             self.label_2 = QtWidgets.QLabel(self.widget)
             self.label_2.setGeometry(QtCore.QRect(30, 20, 51, 51))
             self.label_2.setAutoFillBackground(False)
-            self.label_2.setStyleSheet("background-color: rgb(255, 255, 255);border-radius: 25px")
+            self.label_2.setStyleSheet("background-image : url(source/icon.png);border-radius: 25px")
             self.label_2.setText("")
             self.label_2.setObjectName("label_2")
             self.label_3 = QtWidgets.QLabel(self.widget)
@@ -86,7 +78,7 @@ class Ui_MainWindow(object):
             self.label_4.setFont(font)
             self.label_4.setObjectName("label_4")
             self.pushButton_3 = QtWidgets.QPushButton(self.widget)
-            self.pushButton_3.setGeometry(QtCore.QRect(0, 170, 271, 41))
+            self.pushButton_3.setGeometry(QtCore.QRect(0, 190, 271, 41))
             font = QtGui.QFont()
             font.setPointSize(12)
             self.pushButton_3.setFont(font)
@@ -94,11 +86,40 @@ class Ui_MainWindow(object):
             self.pushButton_3.setStyleSheet("background-color: rgb(255, 171, 37);")
             self.pushButton_3.setObjectName("pushButton_3")
             self.pushButton_4 = QtWidgets.QPushButton(self.widget)
-            self.pushButton_4.setObjectName(u"pushButton_4")
-            self.pushButton_4.setGeometry(QtCore.QRect(0, 210, 271, 41))
+            self.pushButton_4.setGeometry(QtCore.QRect(230, 150, 31, 21))
+            font = QtGui.QFont()
+            font.setPointSize(12)
             self.pushButton_4.setFont(font)
             self.pushButton_4.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
-            self.pushButton_4.setStyleSheet(u"background-color: rgb(255, 171, 37);")
+            self.pushButton_4.setStyleSheet("background-color: rgb(255, 171, 37);")
+            self.pushButton_4.setObjectName("pushButton_4")
+            self.lineEdit = QtWidgets.QLineEdit(self.widget)
+            self.lineEdit.setGeometry(QtCore.QRect(10, 100, 211, 21))
+            self.lineEdit.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.lineEdit.setObjectName("lineEdit")
+            self.lineEdit_2 = QtWidgets.QLineEdit(self.widget)
+            self.lineEdit_2.setGeometry(QtCore.QRect(10, 150, 211, 21))
+            self.lineEdit_2.setStyleSheet("background-color: rgb(255, 255, 255);")
+            self.lineEdit_2.setObjectName("lineEdit_2")
+            self.label_8 = QtWidgets.QLabel(self.widget)
+            self.label_8.setGeometry(QtCore.QRect(10, 80, 51, 16))
+            self.label_8.setStyleSheet("color: rgb(255, 255, 255);")
+            self.label_8.setObjectName("label_8")
+            self.label_9 = QtWidgets.QLabel(self.widget)
+            self.label_9.setGeometry(QtCore.QRect(10, 130, 51, 16))
+            self.label_9.setStyleSheet("color: rgb(255, 255, 255);")
+            self.label_9.setObjectName("label_9")
+            self.pushButton.raise_()
+            self.pushButton_2.raise_()
+            self.label_3.raise_()
+            self.label_4.raise_()
+            self.pushButton_3.raise_()
+            self.pushButton_4.raise_()
+            self.lineEdit.raise_()
+            self.label_2.raise_()
+            self.lineEdit_2.raise_()
+            self.label_8.raise_()
+            self.label_9.raise_()
             self.frame_3 = QtWidgets.QFrame(self.frame)
             self.frame_3.setGeometry(QtCore.QRect(270, -10, 831, 631))
             self.frame_3.setStyleSheet("background-color: rgb(255, 255, 255);\n""border-left-color: rgb(225, 225, 225);")
@@ -128,6 +149,8 @@ class Ui_MainWindow(object):
             self.label_6.setObjectName("label_6")
             self.comboBox = QtWidgets.QComboBox(self.groupBox_2)
             self.comboBox.setGeometry(QtCore.QRect(290, 0, 71, 22))
+            self.comboBox.setAcceptDrops(False)
+            self.comboBox.setEditable(True)
             self.comboBox.setObjectName("comboBox")
             self.comboBox.addItem("")
             self.comboBox.addItem("")
@@ -145,54 +168,49 @@ class Ui_MainWindow(object):
             self.groupBox_4.setGeometry(QtCore.QRect(20, 360, 391, 221))
             self.groupBox_4.setObjectName("groupBox_4")
             self.label_13 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_13.setGeometry(QtCore.QRect(20, 56, 21, 16))
+            self.label_13.setGeometry(QtCore.QRect(20, 60, 21, 16))
             self.label_13.setObjectName("label_13")
             self.lineEdit_4 = QtWidgets.QLabel(self.groupBox_4)
-            self.lineEdit_4.setGeometry(QtCore.QRect(60, 56, 121, 20))
-            self.lineEdit_4.setText("N/A")
+            self.lineEdit_4.setGeometry(QtCore.QRect(60, 60, 291, 20))
+            self.lineEdit_4.setText("")
             self.lineEdit_4.setObjectName("lineEdit_4")
-            self.line_3 = QtWidgets.QFrame(self.groupBox_4)
-            self.line_3.setGeometry(QtCore.QRect(20, 36, 161, 16))
-            self.line_3.setFrameShape(QtWidgets.QFrame.HLine)
-            self.line_3.setFrameShadow(QtWidgets.QFrame.Sunken)
-            self.line_3.setObjectName("line_3")
             self.label_11 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_11.setGeometry(QtCore.QRect(20, 80, 31, 16))
+            self.label_11.setGeometry(QtCore.QRect(20, 84, 31, 16))
             self.label_11.setObjectName("label_11")
             self.lineEdit_3 = QtWidgets.QLabel(self.groupBox_4)
-            self.lineEdit_3.setGeometry(QtCore.QRect(60, 80, 121, 20))
-            self.lineEdit_3.setText("N/A")
+            self.lineEdit_3.setGeometry(QtCore.QRect(60, 84, 291, 20))
+            self.lineEdit_3.setText("")
             self.lineEdit_3.setObjectName("lineEdit_3")
             self.label_15 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_15.setGeometry(QtCore.QRect(75, 124, 51, 17))
+            self.label_15.setGeometry(QtCore.QRect(170, 123, 51, 17))
             self.label_15.setAlignment(QtCore.Qt.AlignCenter)
             self.label_15.setObjectName("label_15")
             self.lineEdit_5 = QtWidgets.QLabel(self.groupBox_4)
-            self.lineEdit_5.setGeometry(QtCore.QRect(60, 174, 121, 20))
-            self.lineEdit_5.setText("N/A")
+            self.lineEdit_5.setGeometry(QtCore.QRect(60, 184, 291, 20))
+            self.lineEdit_5.setText("")
             self.lineEdit_5.setObjectName("lineEdit_5")
             self.label_16 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_16.setGeometry(QtCore.QRect(20, 150, 31, 16))
+            self.label_16.setGeometry(QtCore.QRect(20, 160, 31, 16))
             self.label_16.setObjectName("label_16")
             self.line_4 = QtWidgets.QFrame(self.groupBox_4)
-            self.line_4.setGeometry(QtCore.QRect(20, 126, 161, 16))
+            self.line_4.setGeometry(QtCore.QRect(20, 126, 331, 16))
             self.line_4.setFrameShape(QtWidgets.QFrame.HLine)
             self.line_4.setFrameShadow(QtWidgets.QFrame.Sunken)
             self.line_4.setObjectName("line_4")
             self.lineEdit_6 = QtWidgets.QLabel(self.groupBox_4)
-            self.lineEdit_6.setGeometry(QtCore.QRect(60, 150, 121, 20))
-            self.lineEdit_6.setText("N/A")
+            self.lineEdit_6.setGeometry(QtCore.QRect(60, 160, 291, 20))
+            self.lineEdit_6.setText("")
             self.lineEdit_6.setObjectName("lineEdit_6")
             self.label_12 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_12.setGeometry(QtCore.QRect(20, 174, 31, 16))
+            self.label_12.setGeometry(QtCore.QRect(20, 184, 31, 16))
             self.label_12.setObjectName("label_12")
             self.line_5 = QtWidgets.QFrame(self.groupBox_4)
-            self.line_5.setGeometry(QtCore.QRect(20, 30, 161, 16))
+            self.line_5.setGeometry(QtCore.QRect(20, 30, 331, 16))
             self.line_5.setFrameShape(QtWidgets.QFrame.HLine)
             self.line_5.setFrameShadow(QtWidgets.QFrame.Sunken)
             self.line_5.setObjectName("line_5")
             self.label_17 = QtWidgets.QLabel(self.groupBox_4)
-            self.label_17.setGeometry(QtCore.QRect(85, 26, 31, 20))
+            self.label_17.setGeometry(QtCore.QRect(180, 26, 31, 20))
             self.label_17.setAlignment(QtCore.Qt.AlignCenter)
             self.label_17.setObjectName("label_17")
             self.line_4.raise_()
@@ -208,7 +226,7 @@ class Ui_MainWindow(object):
             self.line_5.raise_()
             self.label_17.raise_()
 
-            
+                
 
             
 
@@ -227,11 +245,14 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "File"))
-        self.pushButton_2.setText(_translate("MainWindow", "Save"))
+        self.pushButton.setText(_translate("MainWindow", "..."))
+        self.pushButton_2.setText(_translate("MainWindow", "PDF SAVE"))
         self.label_3.setText(_translate("MainWindow", "Road Detector"))
-        self.label_4.setText(_translate("MainWindow", "ver 1.0"))
-        self.pushButton_3.setText(_translate("MainWindow", "Detect"))
+        self.label_4.setText(_translate("MainWindow", "ver 1.0.5"))
+        self.pushButton_3.setText(_translate("MainWindow", "START"))
+        self.pushButton_4.setText(_translate("MainWindow", "..."))
+        self.label_8.setText(_translate("MainWindow", "Video File"))
+        self.label_9.setText(_translate("MainWindow", "GPS File"))
         self.groupBox.setTitle(_translate("MainWindow", "Image"))
         self.groupBox_2.setTitle(_translate("MainWindow", "Data"))
         self.comboBox.setItemText(0, _translate("MainWindow", "ALL"))
@@ -242,9 +263,6 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle(_translate("MainWindow", "Deteil"))
         self.label_13.setText(_translate("MainWindow", "Lat:"))
         self.label_11.setText(_translate("MainWindow", "Long:"))
-        self.pushButton_4.setText(_translate("MainWindow", "GPS File"))
-        self.label_13.setText(_translate("MainWindow", "Lat:"))
-        self.label_11.setText(_translate("MainWindow", "Long:"))
         self.label_15.setText(_translate("MainWindow", "Distance"))
         self.label_16.setText(_translate("MainWindow", "length:"))
         self.label_12.setText(_translate("MainWindow", "Km/h"))
@@ -252,11 +270,56 @@ class Ui_MainWindow(object):
 
 
         self.pushButton.clicked.connect(self.DIR_FILE_PATH)
-        self.pushButton_2.clicked.connect(self.DIR_FILE_SAVE)
-        self.pushButton_3.clicked.connect(self.fuck)
         self.pushButton_4.clicked.connect(self.DIR_FILE_PATH_GPS)
+        self.pushButton_3.clicked.connect(self.START)
+        self.pushButton_2.clicked.connect(self.PDF_SAVE)
+        
+        
+        
+        self.pushButton_2.setEnabled(False)
+        self.pushButton_3.setEnabled(False)
+        self.pushButton_4.setEnabled(False)
+        self.comboBox.setEnabled(False)
+
 
         self.comboBox.activated[str].connect(self.onChanged) 
+
+
+
+
+    def DIR_FILE_PATH(self):
+        try:
+            resopnse = QFileDialog.getOpenFileName()
+            self._file_path = resopnse[0]
+            self.lineEdit.setText(resopnse[0])
+            self.pushButton_4.setEnabled(True)
+            self.SET_IMG_OR("first")
+        except:
+            print()
+
+    def DIR_FILE_PATH_GPS(self):
+        try:
+            resopnse = QFileDialog.getOpenFileName()
+            self._file_GPS = resopnse[0]
+            self.lineEdit_2.setText(resopnse[0])
+            self.RuningFalse(True)
+            
+        except:
+            print()
+       
+    def START(self):
+        thr1 = READFILE.Counter(self._file_path,30,self)
+        thr1.start()
+        self.RuningFalse(False)
+
+    def START_FOR_AI(self):
+        self.SET_IMG_OR("getfile")
+        threadForRun = PredictThread.RuningAI(self.AIOBJ)
+        threadForRun.start()
+        self.RuningFalse(False)
+        self.ready = True
+
+
 
     def onChanged(self,text):
         if self.ready == True:
@@ -269,15 +332,6 @@ class Ui_MainWindow(object):
             elif text == "Repair":
                 self.canvas.SetArrayPlotUpdate(self.Repair)
                 
-                
-    def closeEvent(self, event):
-        print("exit")
-
-    def LOADING(self,intData):
-        self.progressBar.setProperty("value",intData)
-
-    
-
     def READ_FILE_TEMP_TEXT(self):
         self.fileGPS  = [] 
         with open('temp.txt') as f:
@@ -299,13 +353,11 @@ class Ui_MainWindow(object):
         self.create_word(lat,self.lineEdit_4)
         self.create_word(long,self.lineEdit_3)
 
-
     def create_word(self,str,label):
         blank_image = np.zeros((30,230,3), np.uint8)
         blank_image.fill(255) 
         cv2.putText(blank_image, str, (20,20), cv2.FONT_HERSHEY_SIMPLEX , 0.5, (0, 0, 0))
         self.setImg_label(blank_image,label)
-
 
     def setImg_label(self,img,label):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -319,32 +371,6 @@ class Ui_MainWindow(object):
         label.setScaledContents(True)
         label.setMinimumSize(1,1)
         label.show()
-
-  
-    def DIR_FILE_PATH_GPS(self):
-        # resopnse = QFileDialog.getOpenFileName()
-        # self._file_path = resopnse[0]
-        # self.lineEdit_4.setText(resopnse[0])
-        # self.lineEdit_3.setText(resopnse[0])
-        self.SaveTest()
-        
-    def DIR_FILE_PATH(self):
-        resopnse = QFileDialog.getOpenFileName()
-        self._file_path = resopnse[0]
-        self.SET_IMG_OR("first")
-        
-
-    def DIR_FILE_SAVE(self):
-        thr1 = READFILE.Counter(self._file_path,30,self)
-        thr1.start()
-        self.RuningFalse(False)
-
-    def fuck(self):
-        self.SET_IMG_OR("getfile")
-        threadForRun = PredictThread.RuningAI(self.AIOBJ)
-        threadForRun.start()
-        self.RuningFalse(False)
-        self.ready = True
 
     def RuningFalse(self,bool):
         self.pushButton.setEnabled(bool)
@@ -377,7 +403,7 @@ class Ui_MainWindow(object):
         self.Crack = Crack
         self.Repair = Repair
 
-    def SaveTest(self):
+    def PDF_SAVE(self):
         pdf.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair)
         
         
