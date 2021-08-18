@@ -12,6 +12,14 @@
 
 ![img](https://i.imgur.com/quLHqqw.png)
 
+
+# Ver 1.2
+- UI ใหม่
+- สร้างไฟล์ PDF Report 
+- สร้างไฟล์ text เพื่อทำงานร่วมกับ Web หลัก
+![img](https://i.imgur.com/DJ0QBSg.png)
+
+
 # ทดสอบด้วยเกม GTA V
 - ถนน
 ![img](https://i.imgur.com/aM39tIz.jpg)
