@@ -3,9 +3,7 @@
 - ไฟล์ Setup ติดตั้งใช้งานได้เลย
 - https://drive.google.com/file/d/1QFBc0ycF_yrFrAgXB5_JFWDesAHc13aI/view?usp=sharing
 
-- ไฟล์ทดสอบโปรแกรม
-- Video
-- GPS
+- ไฟล์ทดสอบโปรแกรม Video & GPS
 - https://drive.google.com/file/d/1QGhXRxJt1wBtwJpTXnkvGPDJdSCRz4Oq/view?usp=sharing
 
 # Ver 1.0
