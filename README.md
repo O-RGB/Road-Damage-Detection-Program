@@ -1,4 +1,8 @@
 # โปรแกรมตรวจจับความเสียหายของถนนด้วย FRCNN
+# DOWNLOAD
+- ไฟล์ Setup ติดตั้งใช้งานได้เลย
+- https://drive.google.com/file/d/1QFBc0ycF_yrFrAgXB5_JFWDesAHc13aI/view?usp=sharing
+
 # Ver 1.0
 - อ่าน GPS 
 - หาความเร็วใน 1 วินาที
