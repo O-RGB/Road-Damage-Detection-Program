@@ -332,7 +332,7 @@ class Ui_MainWindow(object):
             response = QFileDialog.getSaveFileName(None, "Save PDF file", "Report.pdf", "Adobe PDF Files (*.pdf)")
             if response:
                 self.RuningFalse(True)
-                pdfOBJ = creadPDF.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair,response[0])
+                pdfOBJ = creadPDF.CreadPDF(self.real_Position,self.Plothole,self.Crack,self.Repair,response[0],self.distanceAll)
                 
         # except:
         #     print()

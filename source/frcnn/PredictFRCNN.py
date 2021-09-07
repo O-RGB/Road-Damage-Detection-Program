@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 import sys
 import time
+from PIL import ImageFont
 from PyQt5 import QtCore, QtWidgets
 import numpy as np
 import pickle
@@ -19,7 +20,6 @@ from keras.models import Model
 
 from source.frcnn import RoiPoolingConv
 from source.frcnn.config  import Config
-
 
 class AI:
     def __init__(self,GUI):
@@ -435,7 +435,9 @@ class AI:
 
         filename = 'source/model/model_vgg_config.pickle'
         with open(filename, 'rb') as f_in:
+            print(f_in)
             C = pickle.load(f_in)
+            
 
         if C.network == 'resnet50':
             print(1)
@@ -594,19 +596,26 @@ class AI:
                     (x1, y1, x2, y2) = new_boxes[jk,:]
                     (real_x1, real_y1, real_x2, real_y2) = self.get_real_coordinates(ratio, x1, y1, x2, y2)
 
-                    imgforGUI = imgReal[real_y1:real_y2, real_x1:real_x2]
-                    cv2.imwrite('detectOut/{}.{}.{}.{}.png'.format(idx,jk,key,self.GUI.FileTextIndex),imgforGUI)
+                    try:
+                        imgforGUI = imgReal[real_y1:real_y2, real_x1:real_x2]
+                        cv2.imwrite('detectOut/{}.{}.{}.{}.png'.format(idx,jk,key,self.GUI.FileTextIndex),imgforGUI)
+                    except:
+                        print("erreo")
                     
                     temp_real_Position.append([real_x1, real_y1, real_x2, real_y2])
                     if key == 'pothole': temp_all_if_plothole.append([real_x1, real_y1, real_x2, real_y2])
                     elif key == 'crack': temp_all_if_crack.append([real_x1, real_y1, real_x2, real_y2])
                     elif key == 'repai': temp_all_if_repei.append([real_x1, real_y1, real_x2, real_y2])
 
+                    keyTemp = ""
+                    if key == 'pothole': keyTemp = "pothole"
+                    elif key == 'crack': keyTemp = "crack"
+                    elif key == 'repai': keyTemp = "repair"
                     
-                    
+
                     cv2.rectangle(img,(real_x1, real_y1), (real_x2, real_y2), (int(class_to_color[key][0]), int(class_to_color[key][1]), int(class_to_color[key][2])),2)
                     
-                    textLabel = '{}: {}'.format(key,int(100*new_probs[jk]))
+                    textLabel = '{}: {}'.format(keyTemp,int(100*new_probs[jk]))
                     all_dets.append((key,100*new_probs[jk]))
                     
                     (retval,baseLine) = cv2.getTextSize(textLabel,cv2.FONT_HERSHEY_COMPLEX,1,1)
@@ -614,6 +623,8 @@ class AI:
                     
                     cv2.rectangle(img, (textOrg[0] - 5, textOrg[1]+baseLine - 5), (textOrg[0]+retval[0] + 5, textOrg[1]-retval[1] - 5), (0, 0, 0), 2)
                     cv2.rectangle(img, (textOrg[0] - 5,textOrg[1]+baseLine - 5), (textOrg[0]+retval[0] + 5, textOrg[1]-retval[1] - 5), (255, 255, 255), -1)
+
+                    
                     cv2.putText(img, textLabel, textOrg, cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 1)
 
 
