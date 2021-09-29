@@ -1,6 +1,7 @@
-from keras.layers import Layer
+from keras.engine.topology import Layer
+import keras.backend as K
+import numpy as np
 import tensorflow as tf
-from keras import backend as K
 
 class RoiPoolingConv(Layer):
     '''ROI pooling layer for 2D inputs.
@@ -13,23 +14,25 @@ class RoiPoolingConv(Layer):
     # Input shape
         list of two 4D tensors [X_img,X_roi] with shape:
         X_img:
-        `(1, rows, cols, channels)`
+        `(1, rows, cols, channels)`.
         X_roi:
         `(1,num_rois,4)` list of rois, with ordering (x,y,w,h)
     # Output shape
         3D tensor with shape:
-        `(1, num_rois, channels, pool_size, pool_size)`
+        `(1, num_rois, pool_size, pool_size, nb_channels)`
+        
+    NOTE: 
+        This implementation varies from the one mentioned in Fast_RCNN paper
+        we use Tensorflow’s “crop and resize” operation which uses bilinear interpolation
+        to resample part of an image onto a fixed sized grid. This is much more efficient than the original implementation
     '''
     def __init__(self, pool_size, num_rois, **kwargs):
-
-        self.dim_ordering = K.image_data_format()
         self.pool_size = pool_size
         self.num_rois = num_rois
-
         super(RoiPoolingConv, self).__init__(**kwargs)
 
     def build(self, input_shape):
-        self.nb_channels = input_shape[0][3]   
+        self.nb_channels = input_shape[0][3]
 
     def compute_output_shape(self, input_shape):
         return None, self.num_rois, self.pool_size, self.pool_size, self.nb_channels
@@ -38,13 +41,8 @@ class RoiPoolingConv(Layer):
 
         assert(len(x) == 2)
 
-        # x[0] is image with shape (rows, cols, channels)
         img = x[0]
-
-        # x[1] is roi with shape (num_rois,4) with ordering (x,y,w,h)
         rois = x[1]
-
-        input_shape = K.shape(img)
 
         outputs = []
 
@@ -54,30 +52,23 @@ class RoiPoolingConv(Layer):
             y = rois[0, roi_idx, 1]
             w = rois[0, roi_idx, 2]
             h = rois[0, roi_idx, 3]
+        
+            x = K.cast(x, tf.int32)##int32
+            y = K.cast(y, tf.int32)##int32
+            w = K.cast(w, tf.int32)##int32
+            h = K.cast(h, tf.int32)##int32
 
-            x = K.cast(x, 'int32')
-            y = K.cast(y, 'int32')
-            w = K.cast(w, 'int32')
-            h = K.cast(h, 'int32')
-
-            # Resized roi of the image to pooling size (7x7)
             rs = tf.image.resize(img[:, y:y+h, x:x+w, :], (self.pool_size, self.pool_size))
             outputs.append(rs)
-                
 
         final_output = K.concatenate(outputs, axis=0)
-
-        # Reshape to (1, num_rois, pool_size, pool_size, nb_channels)
-        # Might be (1, 4, 7, 7, 3)
         final_output = K.reshape(final_output, (1, self.num_rois, self.pool_size, self.pool_size, self.nb_channels))
-
-        # permute_dimensions is similar to transpose
         final_output = K.permute_dimensions(final_output, (0, 1, 2, 3, 4))
 
         return final_output
     
-    
     def get_config(self):
+        # to load and save model
         config = {'pool_size': self.pool_size,
                   'num_rois': self.num_rois}
         base_config = super(RoiPoolingConv, self).get_config()

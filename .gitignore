@@ -119,3 +119,5 @@ Road detect Project_Trim.mp4
 source/model/record.csv
 source/model/model_vgg_config.pickle
 source/model/model_frcnn_vgg.hdf5
+*.h5
+*.hdf5
