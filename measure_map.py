@@ -37,31 +37,32 @@ def Measure_map(test_path,
     """
     nn = network_arch
 
-    # def get_real_coordinates(ratio, x1, y1, x2, y2):
+    def get_real_coordinates(ratio, x1, y1, x2, y2):
 
-    #     real_x1 = int(round(x1 // ratio))
-    #     real_y1 = int(round(y1 // ratio))
-    #     real_x2 = int(round(x2 // ratio))
-    #     real_y2 = int(round(y2 // ratio))
-    #     return (real_x1, real_y1, real_x2 ,real_y2)
+        real_x1 = int(round(x1 // ratio))
+        real_y1 = int(round(y1 // ratio))
+        real_x2 = int(round(x2 // ratio))
+        real_y2 = int(round(y2 // ratio))
+        return (real_x1, real_y1, real_x2 ,real_y2)
 
-    # def getRatio(img, C):
-    #     img_min_side = float(C.im_size)
-    #     (height,width,_) = img.shape
+    def getRatio(img, C):
+        img_min_side = float(C.im_size)
+        (height,width,_) = img.shape
                 
-    #     if width <= height:
-    #             ratio = img_min_side/width
-    #             new_height = int(ratio * height)
-    #             new_width = int(img_min_side)
-    #     else:
-    #             ratio = img_min_side/height
-    #             new_width = int(ratio * width)
-    #             new_height = int(img_min_side)
-    #     img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
-    #     return ratio	
+        if width <= height:
+                ratio = img_min_side/width
+                new_height = int(ratio * height)
+                new_width = int(img_min_side)
+        else:
+                ratio = img_min_side/height
+                new_width = int(ratio * width)
+                new_height = int(img_min_side)
+        img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+        return ratio	
 
     def PercisionAndRecall(obj,gt):
-        print("Images\t\tDetections\tConfidences\t\tTP or FP\tIOU\t\tTP\t\tFP\t\tAcc TP\t\tAcc FP\t\tPercision\tRecall")
+        #print("Images\t\tDetections\tConfidences\t\tTP or FP\tIOU\t\tTP\t\tFP\t\tAcc TP\t\tAcc FP\t\tPercision\tRecall")
+        # print("Acc TP\t\tAcc FP\t\tPercision\tRecall")
         AccTP,AccFP = 0,0
         TP,FP = 0,0
         Percision = []
@@ -91,20 +92,20 @@ def Measure_map(test_path,
                 Percision.append(i["Percision"])
                 Recall.append(i["Recall"])
 
-                
-                for j in i.keys():
-                        print(i[j],end="\t\t")
-                print()
+                # print(i["AccTP"],"\t\t",i["AccFP"],"\t\t",  i["AccTP"],"/(",(int(i["AccTP"])+int(i["AccFP"])),")=" ,i["Percision"]   ,"\t\t", i["AccTP"],"/(",gt,")=" , i["Recall"])
+                # for j in i.keys():
+                #         print(i[j],end="\t\t")
+                # print()
                 if i["Result"] == "TP":
                     if float(i["IOU"]) == 0 or float(i["IOU"]) < 0.5:
                             print("#########การตรวจจับทำงานผิดพลาด##########")
                             print("IOU น้อยกว่า 0 หรือ น้อยหว่า 0.5 แต่เป็น TP")
                             x = input()
                             break
-                    else:
-                        print(i["IOU"]," = TP ",end="\t\t")
-                if i["Result"] == "FP":
-                        print(i["IOU"]," = FP ",end="\t\t")
+                    #else:
+                        #print(i["IOU"]," = TP ",end="\t\t")
+                #if i["Result"] == "FP":
+                        #print(i["IOU"]," = FP ",end="\t\t")
         print()
         print("ตรวจจับได้ ",len(obj)," จุด")
         print("(TP + FN) มี GT จำนวน",gt," จุด")
@@ -144,11 +145,11 @@ def Measure_map(test_path,
 
         splitPredict=[[],[],[]]
         for i in obj:
-                if i["Predict"] == "pothole":
+                if i["Predict"] == "crack":
                         splitPredict[0].append(i)
-                elif i["Predict"] == "repair":
+                elif i["Predict"] == "pothole":
                         splitPredict[1].append(i)
-                elif i["Predict"] == "crack":
+                elif i["Predict"] == "repair":
                         splitPredict[2].append(i)
                 
         AP = {}
@@ -165,75 +166,85 @@ def Measure_map(test_path,
                 axs[idx].set(xlabel='Recall', ylabel='Percision')
         
         print("mAP = ",sum(AP.values())/3)
-        print(text)
         plt.show()
 
     def get_map(pred, gt, f,imgName):
         T = {}
         P = {}
-        
         fx, fy = f
-        indexImage = 0
+
         for bbox in gt:
-                bbox['bbox_matched'] = False
-        
+            bbox['bbox_matched'] = False
+
+        ACC = []
+
         pred_probs = np.array([s['prob'] for s in pred])
         box_idx_sorted_by_prob = np.argsort(pred_probs)[::-1]
-        ACC = []
-        BBOXPER = len(box_idx_sorted_by_prob)
-        
-        
-        for idx,box_idx in enumerate(box_idx_sorted_by_prob):
-                indexImage = indexImage  +  1
-                temp = {}
-                temp["Images"] = indexImage
-                pred_box = pred[box_idx]
-                pred_class = pred_box['class']
-                pred_x1 = pred_box['x1']
-                pred_x2 = pred_box['x2']
-                pred_y1 = pred_box['y1']
-                pred_y2 = pred_box['y2']
-                pred_prob = pred_box['prob']
-                if pred_class not in P:
-                    P[pred_class] = []
-                    T[pred_class] = []
-                P[pred_class].append(pred_prob)
-                temp["Predict"] = pred_class
-                temp["confidences"] = (pred_prob)
-                # found_match = 0
-                for id,gt_box in enumerate(gt):
-                    gt_class = gt_box['class']
-                    gt_x1 = gt_box['x1']/fx
-                    gt_x2 = gt_box['x2']/fx
-                    gt_y1 = gt_box['y1']/fy
-                    gt_y2 = gt_box['y2']/fy
-                    gt_seen = gt_box['bbox_matched']
-                    
-                    if gt_seen:
-                        continue
-                    iou = ious((pred_x1, pred_y1, pred_x2, pred_y2), (gt_x1, gt_y1, gt_x2, gt_y2))
-                    if iou >= 0.001:
-                        # found_match = iou
-                        gt_box['bbox_matched'] = True
-                        break
-                    else:
-                        iou = 0
-                        continue
-                if (gt_class) == (pred_class) and iou != 0 and iou >= 0.5:
-                    temp["Result"] = "TP"
-                if iou == 0:
-                    temp["Result"] = "FP"
-                if iou < 0.5:
-                    temp["Result"] = "FP"
-                if (gt_class) != (pred_class):
-                    temp["Result"] = "FP"
-          
 
-                temp["IOU"] = round(iou, 5)
-                ACC.append(temp)
-                T[pred_class].append((iou))
-                # print(ACC)
-  
+        for box_idx in box_idx_sorted_by_prob:
+            temp = {}
+            temp["Images"] = imgName
+            pred_box = pred[box_idx]
+            pred_class = pred_box['class']
+            pred_x1 = pred_box['x1']
+            pred_x2 = pred_box['x2']
+            pred_y1 = pred_box['y1']
+            pred_y2 = pred_box['y2']
+            pred_prob = pred_box['prob']
+            if pred_class not in P:
+                P[pred_class] = []
+                T[pred_class] = []
+            P[pred_class].append(pred_prob)
+            temp["Predict"] = pred_class
+            temp["confidences"] = (pred_prob)
+            found_match = False
+            iouStrtic = 0
+
+            for gt_box in gt:
+                gt_class = gt_box['class']
+                gt_x1 = gt_box['x1']/fx
+                gt_x2 = gt_box['x2']/fx
+                gt_y1 = gt_box['y1']/fy
+                gt_y2 = gt_box['y2']/fy
+                gt_seen = gt_box['bbox_matched']
+                if gt_class != pred_class:
+                    continue
+                if gt_seen:
+                    continue
+                iou = ious((pred_x1, pred_y1, pred_x2, pred_y2), (gt_x1, gt_y1, gt_x2, gt_y2))
+                if iou >= 0.5: #0.5 default
+                    found_match = True
+                    gt_box['bbox_matched'] = True
+                    iouStrtic = iou
+                    break
+                else:
+                    iouStrtic = 0
+                    continue
+            if found_match:
+                temp["Result"] = "TP"
+            else:
+                temp["Result"] = "FP"
+
+            temp["IOU"] = round(iouStrtic , 5)
+            ACC.append(temp)
+
+            T[pred_class].append(int(found_match))
+
+        for gt_box in gt:
+            if not gt_box['bbox_matched']:
+                if gt_box['class'] not in P:
+                    P[gt_box['class']] = []
+                    T[gt_box['class']] = []
+
+                T[gt_box['class']].append(1)
+                P[gt_box['class']].append(0)
+
+        # for i in T.keys():
+        #     for j in T[i]:
+        #         print(j)
+
+        
+
         return ACC, len(gt)
 
 
@@ -274,7 +285,7 @@ def Measure_map(test_path,
 
     class_mapping = {v: k for k, v in class_mapping.items()}
     print(class_mapping)
-    # class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
+    class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
 
     
     # load the models
@@ -305,6 +316,7 @@ def Measure_map(test_path,
 
 
     test_imgs, classNumber, _ = get_data(test_path)
+    print(classNumber)
 
     ArrayTable = []
     NumberGT = []
@@ -320,9 +332,9 @@ def Measure_map(test_path,
         filepath = img_data['filepath']
 
         img = cv2.imread(filepath)
-        # ratio = getRatio(img, C)
+        ratio = getRatio(img, C)
 
-        # imgSave = img.copy()
+        imgSave = img.copy()
         X, fx, fy = format_img(img, C,preprocessing_function)
 
         # get the feature maps and output from the RPN
@@ -391,6 +403,8 @@ def Measure_map(test_path,
                 det = {'x1': x1, 'x2': x2, 'y1': y1, 'y2': y2, 'class': key, 'prob': new_probs[jk]}
                 all_dets.append(det)
 
+                # if new_probs[jk] > 0.8:
+
                 # (real_x1, real_y1, real_x2, real_y2) = get_real_coordinates(ratio, x1, y1, x2, y2)
                 # cv2.rectangle(imgSave,(real_x1, real_y1), (real_x2, real_y2), (int(class_to_color[key][0]), int(class_to_color[key][1]), int(class_to_color[key][2])),2)
                 
@@ -404,11 +418,15 @@ def Measure_map(test_path,
                 # cv2.putText(imgSave, textLabel, textOrg, cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 0), 1)
 
         
-        print("filename = ",filepath[38:])
-        print('Elapsed time = {}'.format(time.time() - st))
-        ACC, gt = get_map(all_dets, img_data['bboxes'], (fx, fy),filepath[38:])
+        # print("filename = ",filepath[38:])
+        # print('Elapsed time = {}'.format(time.time() - st))
+        ACC, gt = get_map(all_dets, img_data['bboxes'], (fx, fy),filepath[35:])
         ArrayTable.append(ACC)
+        # print("\n\n\nTESTIN\n\n\n")
+        # for i in ACC:
+        #     print(i)
         NumberGT.append(gt)
+
 
     #     for key in t.keys():
     #         if key not in T:
@@ -426,15 +444,9 @@ def Measure_map(test_path,
     # return(ALL_MAP_LIST)
         #print(T)
         #print(P)
-        # cv2.imwrite('source/DATASET/Testing_Dataset/predict/test{}.png'.format(idx),imgSave)
+        # cv2.imwrite('source/DATASET/Temp_Dataset/predict/test{}.png'.format(idx),imgSave)
     
-    # file = open("source/DATASET/Testing_Dataset/ACCArray.txt", "r")
-    # for data in file:
-    #     try:
-    #         ArrayTable.append(ast.literal_eval(data))
-    #     except:
-    #         None
-    # os.remove("source/DATASET/Testing_Dataset/ACCArray.txt")
+
     
     ArrayTemp = []
     for i in ArrayTable:
@@ -442,7 +454,13 @@ def Measure_map(test_path,
             ArrayTemp.append(data)
 
     ArrayTemp = sorted(ArrayTemp, key=lambda k: k['confidences'] ,reverse=True) 
+    # temp = []
+    # for i in ArrayTemp:
+    #     if float(i['confidences']) > 0.8:
+    #         temp.append(i)
+    # ArrayTemp = temp
     evolution(ArrayTemp,sum(NumberGT),classNumber)
+
 if __name__ == '__main__':
     Measure_map(test_path="source/DATASET/Testing_Dataset/annotate.txt",network_arch = nn)
     x = input()

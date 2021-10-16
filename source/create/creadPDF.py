@@ -50,10 +50,13 @@ class CreadPDF:
         self.conter = "                                                                      "
         self.tab = "          "
         self.tabBold = "       "
+
+        print("###############################")
+        print(GPS)
         
         self.setfont(20,"ระบบตรวจจับความเสียหายถนน",10, Bold = True)
-        self.setfont(16,self.tab + "ตรวจจับตั้งแต่ตำแหน่งที่ "+GPS[0][0]+","+GPS[0][1]+" ถึง "+GPS[len(GPS)-1][0]+","+GPS[len(GPS)-1][1]+" ",7)
-        self.setfont(16,"ด้วยเวลา "+GPS[len(GPS)-1][5]+" นาที ระยะทาง "+str(int(self.distanceAll))+" เมตร โดยพบหลุม "+str(self.countPlothole)+" ครั้ง ถนนแตก "+str(self.countCrack)+" ครั้ง",7)
+        self.setfont(16,self.tab + "ตรวจจับตำแหน่ง "+GPS[0][1]+","+GPS[0][2]+" ถึง "+GPS[len(GPS)-1][1]+","+GPS[len(GPS)-1][2]+" ",7)
+        self.setfont(16,"ด้วยเวลาของวิดีโอที่ตรวจจับได้ "+GPS[len(GPS)-1][5]+" นาที ระยะทางทั้งหมดวัดจาก GPS  "+str(int(self.distanceAll))+" เมตร โดยพบหลุม "+str(self.countPlothole)+" ครั้ง ถนนแตก "+str(self.countCrack)+" ครั้ง",7)
         self.setfont(16,"ถนนซ่อมปะ "+str(self.countRepair)+" ครั้ง",10)
 
         self.pdf.image("real.jpg",     x=2, y=57,  w=200, h=50)
@@ -159,8 +162,12 @@ class CreadPDF:
         axes.set_ylim([0,1920])
         axes.set_xlim([0,len(array)*5])
 
-        x, y = np.array(self.spliArray(array,5)).T
-        plt.scatter(x, y ,color=color)
+        try:
+            x, y = np.array(self.spliArray(array,5)).T
+            plt.scatter(x, y ,color=color)
+        except:
+            pass
+        
         plt.gca().invert_yaxis()
 
         plt.gca().axes.get_yaxis().set_visible(False)

@@ -121,3 +121,5 @@ source/model/model_vgg_config.pickle
 source/model/model_frcnn_vgg.hdf5
 *.h5
 *.hdf5
+source/model/model.rar
+source/DATASET/DATASET.rar
