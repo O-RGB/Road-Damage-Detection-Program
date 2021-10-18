@@ -123,3 +123,4 @@ source/model/model_frcnn_vgg.hdf5
 *.hdf5
 source/model/model.rar
 source/DATASET/DATASET.rar
+source/DATASET/TEST_DATASET.rar
